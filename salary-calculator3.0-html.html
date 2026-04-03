@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Salary → EUR</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: #e8f0fe;
+      color: #0a1a2e;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    .card {
+      background: #f4f8ff;
+      border: 1px solid #c2d4f0;
+      border-radius: 20px;
+      padding: 2.25rem 2rem 2rem;
+      width: 100%;
+      max-width: 640px;
+    }
+
+    h1 {
+      font-size: 13px;
+      font-weight: 500;
+      color: #6a8fc0;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      margin-bottom: 1.75rem;
+    }
+
+    .mode-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 1.5rem;
+    }
+
+    .mode-btn {
+      cursor: pointer;
+      padding: 14px 4px;
+      border-radius: 12px;
+      border: 1.5px solid #c2d4f0;
+      background: #eaf1fd;
+      color: #7a9fc8;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      text-align: center;
+      line-height: 1.35;
+      transition: all 0.18s;
+    }
+    .mode-btn:hover { border-color: #1aff8c; color: #0a9955; }
+    .mode-btn.active {
+      border-color: #1aff8c;
+      background: #d6fff0;
+      color: #0a9955;
+      box-shadow: 0 0 14px rgba(26,255,140,0.25);
+    }
+    .mode-btn .currency { font-size: 20px; display: block; margin-bottom: 4px; }
+
+    .input-wrap {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 1.25rem;
+    }
+
+    #amount {
+      flex: 1;
+      background: #eaf1fd;
+      border: 1.5px solid #c2d4f0;
+      border-radius: 10px;
+      color: #0a1a2e;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 22px;
+      font-weight: 500;
+      padding: 12px 16px;
+      outline: none;
+      transition: border-color 0.18s, box-shadow 0.18s;
+    }
+    #amount::placeholder { color: #aabcd8; }
+    #amount:focus {
+      border-color: #1aff8c;
+      box-shadow: 0 0 0 3px rgba(26,255,140,0.18);
+    }
+
+    #go-btn {
+      cursor: pointer;
+      background: #1aff8c;
+      border: none;
+      border-radius: 10px;
+      color: #033320;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      padding: 12px 28px;
+      letter-spacing: 0.04em;
+      transition: all 0.15s;
+    }
+    #go-btn:hover { background: #44ffaa; box-shadow: 0 0 20px rgba(26,255,140,0.45); }
+    #go-btn:active { transform: scale(0.96); }
+
+    #result-area { display: none; margin-top: 0.25rem; }
+
+    .result-card {
+      background: #eaf1fd;
+      border: 1.5px solid #c2d4f0;
+      border-radius: 14px;
+      padding: 1.25rem 1.5rem;
+    }
+
+    .b-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      padding: 6px 0;
+      border-bottom: 1px solid #d0e0f4;
+      color: #7a9fc8;
+    }
+    .b-row:last-child { border-bottom: none; }
+    .bv { color: #1a7a55; font-weight: 500; }
+    .bn { color: #cc2244; font-weight: 500; }
+
+    .divider { border: none; border-top: 1.5px solid #c2d4f0; margin: 1rem 0 0.9rem; }
+
+    .net-label {
+      font-size: 11px;
+      color: #8aaad0;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 6px;
+    }
+
+    .net-eur {
+      font-size: 48px;
+      font-weight: 700;
+      color: #00cc66;
+      text-shadow: 0 0 24px rgba(26,255,140,0.5), 0 0 48px rgba(26,255,140,0.2);
+      letter-spacing: -0.01em;
+    }
+
+    .footnote {
+      font-size: 11px;
+      color: #aabcd8;
+      margin-top: 1.1rem;
+      line-height: 1.7;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Salary → EUR</h1>
+
+    <div class="mode-grid">
+      <button class="mode-btn active" id="m-lg" onclick="setMode('lg')">
+        <span class="currency">лв.</span>Gross
+      </button>
+      <button class="mode-btn" id="m-ln" onclick="setMode('ln')">
+        <span class="currency">лв.</span>Net
+      </button>
+      <button class="mode-btn" id="m-eg" onclick="setMode('eg')">
+        <span class="currency">€</span>Gross
+      </button>
+    </div>
+
+    <div class="input-wrap">
+      <input type="number" id="amount" placeholder="0.00" min="0" onkeydown="if(event.key==='Enter') calc()" />
+      <button id="go-btn" onclick="calc()">Go</button>
+    </div>
+
+    <div id="result-area">
+      <div class="result-card">
+        <div id="breakdown"></div>
+        <hr class="divider" />
+        <div class="net-label">Net in euros</div>
+        <div class="net-eur" id="net-eur">€0.00</div>
+      </div>
+      <p class="footnote">1.95583 BGN = 1 EUR &nbsp;·&nbsp; Social & health 13.78% &nbsp;·&nbsp; Flat income tax 10%</p>
+    </div>
+  </div>
+
+  <script>
+    let mode = 'lg';
+    const RATE = 1.95583, SOC = 0.1378, TAX = 0.10;
+
+    function setMode(m) {
+      mode = m;
+      ['lg','ln','eg'].forEach(id => {
+        document.getElementById('m-' + id).classList.toggle('active', id === m);
+      });
+      document.getElementById('amount').value = '';
+      document.getElementById('result-area').style.display = 'none';
+      document.getElementById('amount').focus();
+    }
+
+    function fmt(n) {
+      return n.toLocaleString('bg-BG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function calc() {
+      const raw = parseFloat(document.getElementById('amount').value);
+      const ra = document.getElementById('result-area');
+      if (!raw || raw <= 0) { ra.style.display = 'none'; return; }
+
+      let netBGN, rows = '';
+
+      if (mode === 'lg') {
+        const soc = raw * SOC, tax = (raw - soc) * TAX;
+        netBGN = raw - soc - tax;
+        rows = `
+          <div class="b-row"><span>Gross</span><span class="bv">${fmt(raw)} лв.</span></div>
+          <div class="b-row"><span>Social & health (13.78%)</span><span class="bn">− ${fmt(soc)} лв.</span></div>
+          <div class="b-row"><span>Income tax (10%)</span><span class="bn">− ${fmt(tax)} лв.</span></div>
+          <div class="b-row"><span>Net (BGN)</span><span class="bv">${fmt(netBGN)} лв.</span></div>
+        `;
+      } else if (mode === 'ln') {
+        netBGN = raw;
+        rows = `<div class="b-row"><span>Net (BGN)</span><span class="bv">${fmt(netBGN)} лв.</span></div>`;
+      } else {
+        const gBGN = raw * RATE, soc = gBGN * SOC, tax = (gBGN - soc) * TAX;
+        netBGN = gBGN - soc - tax;
+        rows = `
+          <div class="b-row"><span>Gross (EUR)</span><span class="bv">€${fmt(raw)}</span></div>
+          <div class="b-row"><span>Gross (BGN)</span><span class="bv">${fmt(gBGN)} лв.</span></div>
+          <div class="b-row"><span>Social & health (13.78%)</span><span class="bn">− ${fmt(soc)} лв.</span></div>
+          <div class="b-row"><span>Income tax (10%)</span><span class="bn">− ${fmt(tax)} лв.</span></div>
+        `;
+      }
+
+      document.getElementById('breakdown').innerHTML = rows;
+      document.getElementById('net-eur').textContent = '€' + fmt(netBGN / RATE);
+      ra.style.display = 'block';
+    }
+  </script>
+</body>
+</html>
